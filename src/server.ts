@@ -32,11 +32,28 @@ app.post("/upload", upload.single("file"), async (req: any, res: any) => {
     const bucket = "images";
     const filePath = `uploads/${file.originalname}`;
 
-    await uploadFile(bucket, filePath, file);
-
-    res.status(200).send("File uploaded successfully.");
+    // await uploadFile(bucket, filePath, file);
+    const fileKey = await uploadFile(bucket, filePath, file);
+    res.status(200).send(fileKey);
   } catch (error) {
     res.status(500).send("Error uploading file.");
+  }
+});
+
+app.get("/presignedUrl", async (req: Request, res: Response) => {
+  console.log("Received request for presigned URL with query:", req.query);
+  try {
+    const { key } = req.query;
+    if (!key || typeof key !== "string") {
+      return res.status(400).send("File key is required.");
+    }
+    const bucket = "images";
+    const { getPresignedUrl } = await import("./services/UploadFileService");
+    const presignedUrl = await getPresignedUrl(bucket, key, 3600);
+    res.status(200).json({ url: presignedUrl });
+  } catch (error) {
+    console.error("Error generating presigned URL:", error);
+    res.status(500).send("Error generating presigned URL.");
   }
 });
 
