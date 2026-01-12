@@ -30,7 +30,7 @@ app.post("/upload", upload.single("file"), async (req: any, res: any) => {
     }
 
     const bucket = "images";
-    const filePath = `uploads/${file.originalname}`;
+    const filePath = `uploads`;
 
     // await uploadFile(bucket, filePath, file);
     const fileKey = await uploadFile(bucket, filePath, file);
@@ -41,7 +41,6 @@ app.post("/upload", upload.single("file"), async (req: any, res: any) => {
 });
 
 app.get("/presignedUrl", async (req: Request, res: Response) => {
-  console.log("Received request for presigned URL with query:", req.query);
   try {
     const { key } = req.query;
     if (!key || typeof key !== "string") {
