@@ -4,6 +4,8 @@ import path from "path";
 import cors, { CorsOptions } from "cors";
 import multer from "multer";
 import { uploadFile } from "./services/UploadFileService";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 const port = 3000;
@@ -29,10 +31,12 @@ app.post("/upload", upload.single("file"), async (req: any, res: any) => {
       return res.status(400).send("No file uploaded.");
     }
 
-    const bucket = "images";
-    const filePath = `uploads`;
+    const bucket = process.env.SUPABASE_BUCKET_NAME;
+    const filePath = process.env.UPLOAD_DIR;
+    if (!bucket || !filePath) {
+      return res.status(500).send("Bucket name or file path not configured.");
+    }
 
-    // await uploadFile(bucket, filePath, file);
     const fileKey = await uploadFile(bucket, filePath, file);
     res.status(200).send(fileKey);
   } catch (error) {
@@ -46,7 +50,10 @@ app.get("/presignedUrl", async (req: Request, res: Response) => {
     if (!key || typeof key !== "string") {
       return res.status(400).send("File key is required.");
     }
-    const bucket = "images";
+    const bucket = process.env.SUPABASE_BUCKET_NAME;
+    if (!bucket) {
+      return res.status(500).send("Bucket or file path not configured.");
+    }
     const { getPresignedUrl } = await import("./services/UploadFileService");
     const presignedUrl = await getPresignedUrl(bucket, key, 3600);
     res.status(200).json({ url: presignedUrl });
