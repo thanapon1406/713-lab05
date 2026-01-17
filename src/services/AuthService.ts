@@ -35,3 +35,7 @@ export function registerUser(registerRequest: RegisterRequest) {
     ["ROLE_USER"],
   );
 }
+
+export function updatePassword(userId: number, password: string) {
+  return authRepo.updatePassword(userId, bcrypt.hashSync(password));
+}
