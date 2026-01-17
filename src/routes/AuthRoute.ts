@@ -83,9 +83,13 @@ router.post("/register", async (req, res) => {
   } catch (error) {
     console.error("Error during registration:", error);
     if (error instanceof Error && error.message === "Username already exists") {
-      res.status(409).json({ status: "error", message: "Username already exists" });
+      res
+        .status(409)
+        .json({ status: "error", message: "Username already exists" });
     } else {
-      res.status(500).json({ status: "error", message: "Internal server error" });
+      res
+        .status(500)
+        .json({ status: "error", message: "Internal server error" });
     }
   }
 });
